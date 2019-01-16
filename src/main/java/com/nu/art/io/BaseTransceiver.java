@@ -21,6 +21,7 @@ package com.nu.art.io;
 import com.nu.art.belog.Logger;
 import com.nu.art.core.tools.ArrayTools;
 import com.nu.art.core.utils.DebugFlags;
+import com.nu.art.core.utils.DebugFlags.DebugFlag;
 import com.nu.art.core.utils.JavaHandler;
 
 import java.io.IOException;
@@ -33,7 +34,7 @@ import static com.nu.art.io.ConnectionState.Idle;
 public abstract class BaseTransceiver
 	extends Logger {
 
-	public static final String DebugFlag = "Debug_" + BaseTransceiver.class.getSimpleName();
+	public static final DebugFlag DebugFlag = DebugFlags.createFlag(BaseTransceiver.class);
 
 	protected SocketWrapper socket;
 
@@ -119,7 +120,7 @@ public abstract class BaseTransceiver
 
 	@Override
 	protected boolean isLoggerEnabled() {
-		return DebugFlags.isDebuggableFlag(DebugFlag);
+		return DebugFlag.isEnabled();
 	}
 
 	public final void disconnect() {
