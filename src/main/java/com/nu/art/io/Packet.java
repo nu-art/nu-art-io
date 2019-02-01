@@ -19,7 +19,7 @@
 package com.nu.art.io;
 
 /**
- * Created by tacb0ss on 27/05/2017.
+ * Created by TacB0sS on 27/05/2017.
  */
 
 public interface Packet {

@@ -19,7 +19,7 @@
 package com.nu.art.io;
 
 /**
- * Created by tacb0ss on 21/02/2018.
+ * Created by TacB0sS on 21/02/2018.
  */
 
 public interface PacketSendingListener {
