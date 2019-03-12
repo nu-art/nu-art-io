@@ -18,10 +18,7 @@
 
 package com.nu.art.io;
 
-public interface TransceiverListener
-	extends PacketListener {
+public interface PacketListener {
 
-	void onStateChange(ConnectionState newState);
-
-	void onError(Exception e);
+	void onIncomingPacket(Packet packet);
 }
