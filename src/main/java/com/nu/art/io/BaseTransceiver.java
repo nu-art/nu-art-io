@@ -34,6 +34,7 @@ import static com.nu.art.io.ConnectionState.Idle;
 public abstract class BaseTransceiver
 	extends Logger {
 
+	private static final int Interval_Timeout = 10000;
 	public static final DebugFlag DebugFlag = DebugFlags.createFlag(BaseTransceiver.class);
 
 	protected SocketWrapper socket;
@@ -46,9 +47,13 @@ public abstract class BaseTransceiver
 
 	private final JavaHandler receiver;
 
+	private final JavaHandler timeout;
+
 	private final JavaHandler transmitter;
 
 	private boolean listen = true;
+
+	private int sendingTimeout = Interval_Timeout;
 
 	private boolean oneShot = false;
 
@@ -139,8 +144,9 @@ public abstract class BaseTransceiver
 		this.name = name;
 		setTag(name);
 		this.packetSerializer = packetSerializer;
-		transmitter = new JavaHandler().start("Tx - " + name);
-		receiver = new JavaHandler().start("Rx - " + name);
+		timeout = new JavaHandler().start("tx-timeout-" + name);
+		transmitter = new JavaHandler().start("tx-" + name);
+		receiver = new JavaHandler().start("rx-" + name);
 	}
 
 	public final void setOneShot() {
@@ -169,7 +175,7 @@ public abstract class BaseTransceiver
 		sendPacketSync(packet, true);
 	}
 
-	public void sendPacketSync(Packet packet, boolean printToLog)
+	public void sendPacketSync(final Packet packet, boolean printToLog)
 		throws IOException {
 		if (socket == null)
 			throw new IOException("Socket is null ignoring packet: " + packet);
@@ -177,7 +183,24 @@ public abstract class BaseTransceiver
 		if (printToLog)
 			logInfo("Sending packet to remote device: " + packet);
 
-		packetSerializer.serializePacket(socket.getOutputStream(), packet);
+		final Thread callingThread = Thread.currentThread();
+		Runnable timeoutTrigger = new Runnable() {
+			@Override
+			public void run() {
+				logWarning("Interrupting thread '" + callingThread.getName() + "' Packet timed out: " + packet);
+				callingThread.interrupt();
+				disconnect();
+			}
+		};
+
+		timeout.post(sendingTimeout, timeoutTrigger);
+		try {
+			packetSerializer.serializePacket(socket.getOutputStream(), packet);
+		} finally {
+			if (callingThread.isInterrupted())
+				logError("Thread interrupted sending packet");
+			timeout.remove(timeoutTrigger);
+		}
 	}
 
 	public void connect() {
