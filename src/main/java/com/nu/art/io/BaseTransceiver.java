@@ -212,6 +212,12 @@ public abstract class BaseTransceiver
 		receiver.post(connectAndListen);
 	}
 
+	public void dispose() {
+		timeout.stop();
+		transmitter.stop();
+		receiver.stop();
+	}
+
 	protected void processPacket()
 		throws IOException {
 		Packet packet = packetSerializer.extractPacket(socket.getInputStream());
