@@ -19,6 +19,7 @@
 package com.nu.art.io;
 
 import com.nu.art.belog.Logger;
+import com.nu.art.core.exceptions.runtime.BadImplementationException;
 import com.nu.art.core.tools.ArrayTools;
 import com.nu.art.core.utils.DebugFlags;
 import com.nu.art.core.utils.DebugFlags.DebugFlag;
@@ -218,9 +219,16 @@ public abstract class BaseTransceiver
 		receiver.stop();
 	}
 
-	protected void processPacket()
+	private void processPacket()
 		throws IOException {
-		Packet packet = packetSerializer.extractPacket(socket.getInputStream());
+		Packet packet = null;
+		try {
+			packet = packetSerializer.extractPacket(socket.getInputStream());
+		} catch (IOException e) {
+			throw e;
+		} catch (Exception e) {
+			this.notifyError(new BadImplementationException("Error while parsing packet", e));
+		}
 		logDebug("Process packet: " + packet);
 		notifyNewPacket(packet);
 	}

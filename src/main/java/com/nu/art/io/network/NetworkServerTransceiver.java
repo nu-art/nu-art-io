@@ -43,6 +43,9 @@ public final class NetworkServerTransceiver
 		serverSocket = new ServerSocket(port);
 		Socket socket = serverSocket.accept();
 		remoteAddress = socket.getInetAddress().getHostAddress();
+		if(remoteAddress == null)
+			remoteAddress = "127.0.0.1";
+
 		return new WifiSocketWrapper(socket);
 	}
 
