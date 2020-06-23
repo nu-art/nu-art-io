@@ -178,7 +178,8 @@ public abstract class BaseTransceiver
 
 	public void sendPacketSync(final Packet packet, boolean printToLog)
 		throws IOException {
-		if (socket == null)
+		SocketWrapper tmpSocket = socket;
+		if (tmpSocket == null)
 			throw new IOException("Socket is null ignoring packet: " + packet);
 
 		if (printToLog)
@@ -196,7 +197,7 @@ public abstract class BaseTransceiver
 
 		timeout.post(sendingTimeout, timeoutTrigger);
 		try {
-			packetSerializer.serializePacket(socket.getOutputStream(), packet);
+			packetSerializer.serializePacket(tmpSocket.getOutputStream(), packet);
 		} finally {
 			if (callingThread.isInterrupted())
 				logError("Thread interrupted sending packet");
