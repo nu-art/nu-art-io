@@ -69,7 +69,7 @@ public abstract class BaseTransceiver
 					logDebug("live");
 
 					setState(Connecting);
-					receiver.remove(null);
+					receiver.clear();
 
 					socket = connectImpl();
 					setState(Connected);
